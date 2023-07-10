@@ -1,8 +1,11 @@
 {
-    "name": "laravel/laravel",
+    "name": "laravel/vetiquetas",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "Aplicacion que permite la cotización y pedido de etiquetas personalizadas para indumentaria",
+    "keywords": [
+        "laravel",
+        "framework"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.1",
