@@ -23,10 +23,8 @@ class ValidCuitCuil implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        // Eliminar guiones, espacios y puntos del valor
-        $cuitCuil = str_replace(['-', ' '], '', $value);
-        // Eliminar caracteres no numéricos
-        $cuitCuil = preg_replace('/[^0-9]/', '', $value);
+        // Eliminar guiones y caracteres no numericos
+        $cuitCuil = preg_replace("/-/", "", preg_replace("/\D/", "", (string) $value));
 
         // Validar la longitud del CUIT/CUIL
         if (strlen($cuitCuil) !== 11) {
@@ -40,10 +38,10 @@ class ValidCuitCuil implements ValidationRule
         }
 
         // Validacion final de si está en la AFIP "de dudosa procedencia"
-        if (!$this->isValidAfipTangoCuit($cuitCuil)) {
-            $fail($this->message());
-            return;
-        }
+        // if (!$this->isValidAfipTangoCuit($cuitCuil)) {
+        //     $fail($this->message());
+        //     return;
+        // }
     }
 
     public function message()
@@ -60,18 +58,28 @@ class ValidCuitCuil implements ValidationRule
     private function isValidCuit(string $value)
     {
         $cuit = $value;
-        $factor = 5;
-        $sum = 0;
+        $suma = 0;
+        $factores = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
+
+        $numeros = substr($cuit, 0, -1);
+        $verificador = (int) substr($cuit, -1);
 
         for ($i = 0; $i < 10; $i++) {
-            $sum += ($cuit[$i] * $factor);
-            $factor = ($factor == 2) ? 7 : $factor - 1;
+            $suma += (int) ($numeros[$i] * $factores[$i]);
         }
 
-        $expectedChecksum = 11 - ($sum % 11);
-        $expectedChecksum = ($expectedChecksum == 11) ? 0 : $expectedChecksum;
+        $resto = $suma % 11;
+        $resultado = 0;
+        if ($resto === 0)
+            $resultado = 0;
+        elseif ($resto === 1)
+            $resultado = 9;
+        else
+            $resultado = 11 - $resto;
 
-        return $cuit[10] == $expectedChecksum;
+        if ($resultado !== $verificador) return false;
+
+        return true;
     }
 
     /**
@@ -83,17 +91,25 @@ class ValidCuitCuil implements ValidationRule
     private function isValidCuil(string $value)
     {
         $cuil = $value;
-        $factor = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
-        $sum = 0;
+        $suma = 0;
+        $factores = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
+
+        $numeros = substr($cuil, 0, -1);
+        $verificador = (int) substr($cuil, -1);
 
         for ($i = 0; $i < 10; $i++) {
-            $sum += ($cuil[$i] * $factor[$i]);
+            $suma += (int) ($numeros[$i] * $factores[$i]);
         }
 
-        $expectedChecksum = 11 - ($sum % 11);
-        $expectedChecksum = ($expectedChecksum == 11) ? 0 : $expectedChecksum;
+        $resto = $suma % 11;
+        $resultado = 0;
+        if ($resto === 0) $resultado = 0;
+        elseif ($resto === 1) $resultado = 9;
+        else $resultado = 11 - $resto;
 
-        return $cuil[10] == $expectedChecksum;
+        if ($resultado !== $verificador) return false;
+
+        return true;
     }
 
     /**

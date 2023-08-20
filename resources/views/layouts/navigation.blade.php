@@ -45,7 +45,6 @@
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('cerrar-sesion') }}">
                             @csrf
-
                             <x-dropdown-link :href="route('cerrar-sesion')"
                                 onclick="event.preventDefault();
                                                 this.closest('form').submit();">
